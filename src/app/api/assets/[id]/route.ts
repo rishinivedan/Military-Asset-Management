@@ -1,10 +1,13 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
-import { NextRequest } from "next/server";
+
 const prisma = new PrismaClient();
 
 // GET /api/assets/[id] - Get a single asset by ID
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const asset = await prisma.asset.findUnique({
       where: { id: params.id },
