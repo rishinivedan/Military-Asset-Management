@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  COMMANDER
+  LOGISTICS
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  role      Role
+  baseId    String?
+  base      Base?    @relation(fields: [baseId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Base {
+  id           String     @id @default(uuid())
+  name         String     @unique
+  location     String
+  users        User[]
+  assets       Asset[]    // ✅ Assets related to this base
+  transfersOut Transfer[] @relation("TransferFrom")
+  transfersIn  Transfer[] @relation("TransferTo")
+}
+
+model Asset {
+  id          String       @id @default(uuid())
+  name        String
+  type        String
+  baseId      String       // ✅ Foreign key
+  base        Base         @relation(fields: [baseId], references: [id])
+  quantity    Int
+  purchases   Purchase[]
+  assignments Assignment[]
+  transfers   Transfer[]   // ✅ Transfers involving this asset
+}
+
+model Purchase {
+  id       String   @id @default(uuid())
+  assetId  String
+  asset    Asset    @relation(fields: [assetId], references: [id])
+  quantity Int
+  date     DateTime @default(now())
+}
+
+model Transfer {
+  id         String   @id @default(uuid())
+  assetId    String
+  asset      Asset    @relation(fields: [assetId], references: [id])
+  
+  fromBaseId String
+  fromBase   Base     @relation("TransferFrom", fields: [fromBaseId], references: [id])
+  
+  toBaseId   String
+  toBase     Base     @relation("TransferTo", fields: [toBaseId], references: [id])
+  
+  quantity   Int
+  date       DateTime @default(now())
+}
+
+model Assignment {
+  id         String   @id @default(uuid())
+  assetId    String
+  asset      Asset    @relation(fields: [assetId], references: [id])
+  quantity   Int
+  assignedTo String
+  date       DateTime @default(now())
+  expended   Boolean  @default(false)
+}
