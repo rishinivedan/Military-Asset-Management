@@ -1,13 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 const prisma = new PrismaClient();
 
 // GET /api/transfers/[id]
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const transfer = await prisma.transfer.findUnique({
       where: { id: params.id },

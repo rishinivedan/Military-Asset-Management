@@ -1,14 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 const prisma = new PrismaClient();
 
 // GET /api/assignments/[id]
-export async function GET(
-  request: Request,
-  context: { params: Promise<{ id: string }> }
-) {
-  const { id } = await context.params;
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
 
   try {
     const assignment = await prisma.assignment.findUnique({
@@ -28,11 +26,8 @@ export async function GET(
 }
 
 // PUT /api/assignments/[id]
-export async function PUT(
-  request: Request,
-  context: { params: Promise<{ id: string }> }
-) {
-  const { id } = await context.params;
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
 
   try {
     const body = await request.json();
@@ -42,7 +37,7 @@ export async function PUT(
       where: { id },
       data: {
         asset: { connect: { id: assetId } },
-        quantity: Number(quantity), // 👈 this fixes the Prisma type error
+        quantity: Number(quantity),
         assignedTo,
         expended,
       },
@@ -56,11 +51,8 @@ export async function PUT(
 }
 
 // DELETE /api/assignments/[id]
-export async function DELETE(
-  request: Request,
-  context: { params: Promise<{ id: string }> }
-) {
-  const { id } = await context.params;
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
 
   try {
     await prisma.assignment.delete({
